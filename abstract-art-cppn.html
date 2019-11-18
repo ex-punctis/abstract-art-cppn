@@ -1,0 +1,76 @@
+<html>
+    <!DOCTYPE html>
+    <html lang="en-CA">
+    <head>
+        <title>Image generation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Import the main script file -->  
+    </head>
+<body>
+    <div class="canvas-wrapper">
+        <canvas id='canvas' class="canvas-wrapped"></canvas>
+        <p><button id='resetButton'>New weights</button></p>
+        <p>
+            <label for="activation1"">Layer 1: </label>
+            <select id='activation1'>
+                <option value="sin">sin()</option>
+                <option value="cos" selected>cos()</option>
+                <option value="tanh">tanh()</option>
+                <option value="lin">linear()</option>
+            </select>
+            <input type="range" id="magnitude1" min="1" max="6.2" value="1" step="0.2" class="slider">
+        </p>
+        <p>
+            <label for="activation2"">Layer 2: </label>
+            <select id='activation2'>
+                <option value="sin" selected>sin()</option>
+                <option value="cos">cos()</option>
+                <option value="tanh">tanh()</option>
+                <option value="lin">linear()</option>
+            </select>
+            <input type="range" id="magnitude2" min="1" max="6.2" value="1" step="0.2" class="slider">
+        </p>
+        <p>
+            <label for="activation3"">Layer 3: </label>
+            <select id='activation3'>
+                <option value="sin">sin()</option>
+                <option value="cos">cos()</option>
+                <option value="tanh" selected>tanh()</option>
+                <option value="lin">linear()</option>
+            </select>
+            <input type="range" id="magnitude3" min="1" max="6.2" value="1" step="0.2" class="slider">
+        <p>
+            <label for="activation4"">Layer 4: </label>
+            <select id='activation4'>
+                <option value="sin" selected>sin()</option>
+                <option value="cos">cos()</option>
+                <option value="tanh">tanh()</option>
+            </select>
+            <p>Click the button or press space to generate a 1920x1080 wallpaper. Once generation is done (may take a while!), the image will appear below. It will look like a thumbnail, but it's actually full-res and can be saved.</p>
+            <p><button id='saveImgButton' onclick="">Generate wallpaper</button></p>
+            
+        </p>
+    </div> 
+
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.2/dist/tf.min.js"></script>
+<script src="abstract-art-cppn.js"></script>
+<script>
+
+
+
+cppn = new abstractANN ({
+    canvasID: 'canvas', saveButtonID:'saveImgButton', resetButtonID:'resetButton',
+    activationIDs: ['activation1', 'activation2', 'activation3', 'activation4'], 
+    magnitudeIDs:['magnitude1', 'magnitude2', 'magnitude3']
+});
+
+cppn.start();
+
+cppn.canvas.style.height="60vh";
+
+
+</script>
+</html>
