@@ -209,7 +209,7 @@ class abstractANN {
             let a3 = this.activation3(z3).mul(this.magnitude3);
             let z4 = a3.matMul(this.w4);
             let a4 = this.activation4(z4);
-            let output = a4.div(tf.scalar(2)).add(tf.scalar(0.5)).reshape([this.WIDTH, this.WIDTH, 3]);
+            let output = a4.div(tf.scalar(2)).add(tf.scalar(0.5)).reshape([this.WIDTH, this.WIDTH, 3]).clipByValue(0.001, 0.999);
 
             return (output);
         });
