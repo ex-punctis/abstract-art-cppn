@@ -1,0 +1,278 @@
+<html>
+    <!DOCTYPE html>
+    <html lang="en-CA">
+    <head>
+        <title>CCPN</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+<body>
+
+</body>
+<script>
+
+var width = 100;
+
+// create canvas element
+var canvas = document.createElement('canvas');
+var ctx = canvas.getContext('2d');
+
+canvas.width = width;
+canvas.height = width;
+
+// create imageData object
+var idata = ctx.createImageData(width, width);
+
+canvas.style.height = "80vh";
+document.body.appendChild(canvas);
+
+
+const MAXTIME = 80;
+var input = [];
+
+var H = 8;
+var w1 = [];
+var w2 = [];
+var w3 = [];
+var wOut = [];
+
+var h1 = [];
+var h2 = [];
+var h3 = [];
+var output = [];
+
+var rgbCoeffs = [255,255,255]//[80, 100, 128];
+var rgbOffset = [0,0,0]//[0, 50, 127];
+
+function generateInput() {
+// generate input (x,y, 0)
+    for (let i = 0; i<width; i++) {
+        for (let j = 0; j<width; j++) {
+            input.push([i/width, j/width, 0]); //i*j/width/width
+        }
+    }
+}
+
+async function updateInput(t) {
+    // update input (x,y, t)
+    for (let i = 0; i<width*width; i++) {
+        input[i][2] = t; //Math.sin(t);
+    }
+}
+
+
+
+function generateWeights() {
+    // first layer weights
+    for (let i = 0; i<H; i++) {
+        let tempArr = [];
+        for (let j = 0; j<3; j++) {
+            tempArr.push(Math.random()*2-0.5);
+        }
+        w1.push(tempArr);
+    }
+    // second layer weights
+    for (let i = 0; i<H; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            tempArr.push(Math.random()*2-0.5);
+        }
+        w2.push(tempArr);
+    }
+    // third layer weights
+    for (let i = 0; i<H; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            tempArr.push(Math.random()*2-0.5);
+        }
+        w3.push(tempArr);
+    }
+    // output layer weights
+    for (let i = 0; i<3; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            tempArr.push(Math.random()*2-0.5);
+        }
+        wOut.push(tempArr);
+    }
+}
+
+async function forwardProp() {
+    h1 = [];
+    h2 = [];
+    h3 = [];
+    output = [];
+
+    // input layer to first hidden layer
+    for (let i = 0; i<input.length; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            let accumulator = 0;
+            for (let k = 0; k<3; k++) {
+                accumulator += input[i][k]*w1[j][k];
+            }
+            tempArr.push(Math.cos(accumulator));
+        }
+        h1.push(tempArr);
+    }
+
+    // first to second hidden layer
+    for (let i = 0; i<input.length; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            let accumulator = 0;
+            for (let k = 0; k<H; k++) {
+                accumulator += h1[i][k]*w2[j][k];
+            }
+            tempArr.push(Math.tanh(accumulator));
+        }
+        h2.push(tempArr);
+    }
+
+    // second to third hidden layer
+    for (let i = 0; i<input.length; i++) {
+        let tempArr = [];
+        for (let j = 0; j<H; j++) {
+            let accumulator = 0;
+            for (let k = 0; k<H; k++) {
+                accumulator += h2[i][k]*w3[j][k];
+            }
+            tempArr.push(Math.cos(accumulator));
+        }
+        h3.push(tempArr);
+    }
+
+    // // third hidden layer to RGBA array
+    // for (let i = 0; i<input.length; i++) {
+    //     let accumulator = 0;
+    //     for (let k = 0; k<H; k++) {
+    //         accumulator += h3[i][k]*wOut[0][k];
+    //     }
+    //     output.push(Math.floor((Math.sin(accumulator)/2+0.5)*80)); //r
+    //     accumulator = 0;
+    //     for (let k = 0; k<H; k++) {
+    //         accumulator += h3[i][k]*wOut[1][k];
+    //     }
+    //     output.push(Math.floor((Math.sin(accumulator)/2+0.5)*128 + 127)); 
+    //     accumulator = 0;
+    //     for (let k = 0; k<H; k++) {
+    //         accumulator += h3[i][k]*wOut[2][k];
+    //     }
+    //     output.push(Math.floor((Math.sin(accumulator)/2+0.5)*100+50));     
+
+    //     output.push(255); // alpha value
+    // }
+
+    // third hidden layer to RGBA array
+    for (let i = 0; i<input.length; i++) {
+        for (let j = 0; j<3; j++) { //rgb
+            let accumulator = 0;
+            for (let k = 0; k<H; k++) {
+                accumulator += h3[i][k]*wOut[j][k];
+            }
+            output.push(Math.floor((Math.sin(accumulator)/2+0.5)*rgbCoeffs[j]+rgbOffset[j])); 
+        }
+        output.push(255); // alpha value
+    }
+
+
+    // // third hidden layer to RGBA array
+    // for (let i = 0; i<input.length; i++) {
+    //     for (let j = 0; j<3; j++) { //rgb
+    //         let accumulator = 0;
+    //         for (let k = 0; k<H; k++) {
+    //             accumulator += h3[i][k]*wOut[j][k];
+    //         }
+    //         output.push(Math.floor((Math.sin(accumulator)/2+0.5)*255)); 
+    //     }
+    //     output.push(255); // alpha value
+    // }
+
+    return(Uint8ClampedArray.from(output));
+}
+
+// // third hidden layer to output layer
+// for (let i = 0; i<input.length; i++) {
+//     let tempArr = [];
+//     for (let j = 0; j<3; j++) {
+//         let accumulator = 0;
+//         for (let k = 0; k<H; k++) {
+//             accumulator += h3[i][k]*wOut[j][k];
+//         }
+//         tempArr.push(Math.floor((Math.sin(accumulator)/2+0.5)*255));
+//     }
+//     //tempArr.push(255); // alpha value
+//     output.push(tempArr);
+// }
+
+
+// // Output layer 2d array to RGBA array
+// for(let pos = 0; pos < width*width; pos++) {
+//     buffer[pos*4  ] = output[pos][0];           // some R value
+//     buffer[pos*4+1] = output[pos][1];           // some G value
+//     buffer[pos*4+2] = output[pos][2];           // some B value
+//     buffer[pos*4+3] = 255;           // set alpha channel
+    
+// }
+
+async function updateCanvas(buffer) {
+    // set our buffer as source
+    idata.data.set(buffer);
+
+    // update canvas with new data
+    ctx.putImageData(idata, 0, 0);
+}
+
+generateWeights();
+generateInput();
+
+// var t=0;
+
+// var outer = setInterval(function() {
+//     if(t > 8*Math.PI){
+//         clearInterval(outer);   
+//     }
+//     else{
+
+//         t = t + 0.015;
+
+//     updateInput(t);
+//     buffer = forwardProp();
+//     updateCanvas(buffer);
+//     //console.log(t);
+//     }
+// }, 5);
+
+
+var t=0;
+
+async function drawFrame() {
+    //t = performance.now()*SPEED;
+    t = t+0.015;
+    //console.log(t);
+
+    await updateInput(t);
+    buffer = await forwardProp();
+    await updateCanvas(buffer);
+
+    if(t < MAXTIME){
+        window.requestAnimationFrame(drawFrame);
+        
+    }
+    else {
+        console.table( tf.memory() );
+        //tf.memory('numBytesInGPU')['numBytesInGPU']/1e6
+    }
+}
+
+window.requestAnimationFrame(drawFrame);
+
+
+// run when the document is loaded
+// document.addEventListener('DOMContentLoaded', function() {
+// end of onload function
+// }, false);
+
+
+</script>
+</html>

@@ -16,6 +16,8 @@ This is essentially a compositional pattern-producing network (CPPN) except it m
 
 TensorFlow.js utilizes WebGL to make calculations faster. It can also use CPU only, but you'll get much better framerates on a GPU-equipped device.  
 
+Edit (2020-03-01): I added vanilla_js.html which uses only plain js without any libraries.
+
 ## Acknowledgements
 
 The following two resources introduced me to abstract art generation with CPPNs. 
